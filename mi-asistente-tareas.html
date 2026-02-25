@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Asistente de Tareas v1.0</title>
+    <style>
+        /* ===== ESTILOS GENERALES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* ===== CONTENEDOR PRINCIPAL ===== */
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 600px;
+            padding: 40px;
+        }
+
+        /* ===== ENCABEZADO ===== */
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        /* ===== FORMULARIO PARA AÑADIR TAREAS ===== */
+        .add-task-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        #taskInput {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        #taskInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        #addButton {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        #addButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        #addButton:active {
+            transform: translateY(0);
+        }
+
+        /* ===== ESTADÍSTICAS ===== */
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* ===== LISTA DE TAREAS ===== */
+        .tasks-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            color: #333;
+            font-size: 1.3em;
+        }
+
+        #clearCompleted {
+            padding: 8px 15px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        #clearCompleted:hover {
+            background: #ff5252;
+        }
+
+        #taskList {
+            list-style: none;
+        }
+
+        .task-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .task-item:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+            background: #e8f5e9;
+        }
+
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .task-text {
+            flex: 1;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .task-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .delete-button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .delete-button:hover {
+            background: #ff5252;
+        }
+
+        /* ===== MENSAJE CUANDO NO HAY TAREAS ===== */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        /* ===== PIE DE PÁGINA ===== */
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #999;
+            font-size: 0.85em;
+        }
+
+        /* ===== ANIMACIÓN DE ENTRADA ===== */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .task-item {
+            animation: slideIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ENCABEZADO -->
+        <h1>📝 Mi Asistente de Tareas</h1>
+        <p class="subtitle">Versión 1.0 - Organiza tu día de manera simple</p>
+
+        <!-- FORMULARIO PARA AÑADIR TAREAS -->
+        <div class="add-task-form">
+            <input 
+                type="text" 
+                id="taskInput" 
+                placeholder="¿Qué necesitas hacer hoy?"
+                autocomplete="off"
+            >
+            <button id="addButton">Añadir</button>
+        </div>
+
+        <!-- ESTADÍSTICAS -->
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalTasks">0</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="pendingTasks">0</div>
+                <div class="stat-label">Pendientes</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="completedTasks">0</div>
+                <div class="stat-label">Completadas</div>
+            </div>
+        </div>
+
+        <!-- LISTA DE TAREAS -->
+        <div class="tasks-header">
+            <h2>Mis Tareas</h2>
+            <button id="clearCompleted">Limpiar completadas</button>
+        </div>
+        
+        <ul id="taskList">
+            <!-- Las tareas se añadirán aquí dinámicamente -->
+        </ul>
+
+        <div id="emptyState" class="empty-state">
+            <div class="empty-state-icon">✨</div>
+            <p>No tienes tareas pendientes</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">¡Añade tu primera tarea arriba!</p>
+        </div>
+
+        <!-- PIE DE PÁGINA -->
+        <div class="footer">
+            <p>💡 Tip: Presiona Enter para añadir una tarea rápidamente</p>
+            <button id="debugButton" style="margin-top: 15px; padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                 🐛 Ver Tareas en Consola
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ===== VARIABLES GLOBALES =====
+        let tasks = []; // Array que guardará todas nuestras tareas
+
+        // ===== ELEMENTOS DEL DOM =====
+        const taskInput = document.getElementById('taskInput');
+        const addButton = document.getElementById('addButton');
+        const taskList = document.getElementById('taskList');
+        const emptyState = document.getElementById('emptyState');
+        const clearCompletedButton = document.getElementById('clearCompleted');
+        
+        // Elementos de estadísticas
+        const totalTasksElement = document.getElementById('totalTasks');
+        const pendingTasksElement = document.getElementById('pendingTasks');
+        const completedTasksElement = document.getElementById('completedTasks');
+
+        // ===== CARGAR TAREAS AL INICIAR =====
+        // Cuando la página carga, recuperamos las tareas guardadas
+        window.addEventListener('load', () => {
+            loadTasksFromStorage();
+            renderTasks();
+        });
+
+        // ===== FUNCIÓN PARA AÑADIR TAREA =====
+        function addTask() {
+            const taskText = taskInput.value.trim();
+            
+            // Validar que el input no esté vacío
+            if (taskText === '') {
+                alert('Por favor escribe una tarea');
+                return;
+            }
+
+            // Crear objeto de tarea
+            const task = {
+                id: Date.now(), // ID único basado en timestamp
+                text: taskText,
+                completed: false,
+                createdAt: new Date().toLocaleString('es-ES')
+            };
+
+            // Añadir tarea al array
+            tasks.push(task);
+
+            // Limpiar input
+            taskInput.value = '';
+            taskInput.focus();
+
+            // Guardar y renderizar
+            saveTasksToStorage();
+            renderTasks();
+        }
+
+        // ===== FUNCIÓN PARA MARCAR TAREA COMO COMPLETADA =====
+        function toggleTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                saveTasksToStorage();
+                renderTasks();
+            }
+        }
+
+        // ===== FUNCIÓN PARA ELIMINAR TAREA =====
+        function deleteTask(id) {
+            // Filtrar todas las tareas excepto la que queremos eliminar
+            tasks = tasks.filter(t => t.id !== id);
+            saveTasksToStorage();
+            renderTasks();
+        }
+
+        // ===== FUNCIÓN PARA LIMPIAR TAREAS COMPLETADAS =====
+        function clearCompleted() {
+            const completedCount = tasks.filter(t => t.completed).length;
+            
+            if (completedCount === 0) {
+                alert('No hay tareas completadas para eliminar');
+                return;
+            }
+
+            if (confirm(`¿Eliminar ${completedCount} tarea(s) completada(s)?`)) {
+                tasks = tasks.filter(t => !t.completed);
+                saveTasksToStorage();
+                renderTasks();
+            }
+        }
+
+        // ===== FUNCIÓN PARA RENDERIZAR TAREAS EN LA PANTALLA =====
+        function renderTasks() {
+            // Limpiar lista actual
+            taskList.innerHTML = '';
+
+            // Si no hay tareas, mostrar mensaje
+            if (tasks.length === 0) {
+                emptyState.style.display = 'block';
+                updateStats();
+                return;
+            } else {
+                emptyState.style.display = 'none';
+            }
+
+            // Crear elemento HTML para cada tarea
+            tasks.forEach(task => {
+                const li = document.createElement('li');
+                li.className = `task-item ${task.completed ? 'completed' : ''}`;
+                
+                li.innerHTML = `
+                    <input 
+                        type="checkbox" 
+                        class="task-checkbox" 
+                        ${task.completed ? 'checked' : ''}
+                        onchange="toggleTask(${task.id})"
+                    >
+                    <span class="task-text">${task.text}</span>
+                    <span class="task-time">${task.createdAt}</span>
+                    <button class="delete-button" onclick="deleteTask(${task.id})">
+                        Eliminar
+                    </button>
+                `;
+
+                taskList.appendChild(li);
+            });
+
+            updateStats();
+        }
+
+        // ===== FUNCIÓN PARA ACTUALIZAR ESTADÍSTICAS =====
+        function updateStats() {
+            const total = tasks.length;
+            const completed = tasks.filter(t => t.completed).length;
+            const pending = total - completed;
+
+            totalTasksElement.textContent = total;
+            completedTasksElement.textContent = completed;
+            pendingTasksElement.textContent = pending;
+        }
+
+        // ===== FUNCIONES DE ALMACENAMIENTO LOCAL =====
+        function saveTasksToStorage() {
+            // Guardar en el navegador (localStorage)
+            localStorage.setItem('myTasks', JSON.stringify(tasks));
+        }
+
+        function loadTasksFromStorage() {
+            // Cargar desde el navegador
+            const savedTasks = localStorage.getItem('myTasks');
+            if (savedTasks) {
+                tasks = JSON.parse(savedTasks);
+            }
+        }
+
+        // ===== EVENT LISTENERS =====
+        
+        // Botón de añadir
+        addButton.addEventListener('click', addTask);
+
+        // Presionar Enter en el input
+        taskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        // Botón de limpiar completadas
+        clearCompletedButton.addEventListener('click', clearCompleted);
+
+        // ===== MENSAJE DE BIENVENIDA =====
+        console.log('🎉 ¡Bienvenido a tu Asistente de Tareas!');
+        console.log('💡 Esta aplicación usa localStorage para guardar tus tareas');
+        // ===== BOTÓN DE DEBUG =====
+const debugButton = document.getElementById('debugButton');
+
+debugButton.addEventListener('click', () => {
+    console.clear(); // Limpia la consola
+    console.log('═══════════════════════════════════════');
+    console.log('🐛 DEBUG - Estado de la Aplicación');
+    console.log('═══════════════════════════════════════');
+    console.log('📊 Total de tareas:', tasks.length);
+    console.log('📋 Array completo de tareas:', tasks);
+    console.log('');
+    console.log('📦 Contenido del localStorage:');
+    console.log(localStorage.getItem('myTasks'));
+    console.log('═══════════════════════════════════════');
+    
+    // Mostrar cada tarea individualmente
+    if (tasks.length > 0) {
+        console.log('📝 Detalles de cada tarea:');
+        tasks.forEach((task, index) => {
+            console.log(`\nTarea ${index + 1}:`);
+            console.log('  ├─ ID:', task.id);
+            console.log('  ├─ Texto:', task.text);
+            console.log('  ├─ Completada:', task.completed ? '✅ Sí' : '❌ No');
+            console.log('  └─ Creada:', task.createdAt);
+        });
+    } else {
+        console.log('⚠️ No hay tareas para mostrar');
+    }
+    
+    console.log('═══════════════════════════════════════');
+    console.log('💡 Tip: Puedes editar el array "tasks" desde aquí');
+    console.log('Ejemplo: tasks[0].text = "Nueva tarea"');
+});
+    </script>
+</body>
+</html>
