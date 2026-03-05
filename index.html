@@ -4,26 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- META TAGS PARA PWA (Progressive Web App) -->
+    <!-- META TAGS PARA PWA -->
     <meta name="theme-color" content="#667eea">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Mis Tareas">
-    <meta name="description" content="Organiza tus tareas diarias de forma simple y efectiva">
+    <meta name="description" content="Organiza tus tareas con categorías y prioridades">
     
-    <!-- ICONOS PARA DISPOSITIVOS -->
+    <!-- ICONOS -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>📝</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23667eea'/><text x='50' y='75' font-size='60' text-anchor='middle' fill='white'>📝</text></svg>">
     
-    <title>Mi Asistente de Tareas v1.5</title>
+    <title>Mi Asistente de Tareas v2.0</title>
     
     <style>
-        /* ===== RESET Y VARIABLES ===== */
+        /* ===== VARIABLES ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent; /* Quita el flash azul en móviles */
+            -webkit-tap-highlight-color: transparent;
         }
 
         :root {
@@ -32,6 +32,20 @@
             --secondary-color: #764ba2;
             --success-color: #4CAF50;
             --danger-color: #ff6b6b;
+            --warning-color: #ffa726;
+            --info-color: #42a5f5;
+            
+            /* Prioridades */
+            --priority-high: #ff4757;
+            --priority-medium: #ffa502;
+            --priority-low: #2ed573;
+            
+            /* Categorías */
+            --category-work: #667eea;
+            --category-personal: #ff6b9d;
+            --category-urgent: #ff4757;
+            --category-other: #95a5a6;
+            
             --text-dark: #333;
             --text-light: #666;
             --text-lighter: #999;
@@ -49,32 +63,25 @@
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             min-height: 100vh;
             padding: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
             padding-top: 20px;
             padding-bottom: 40px;
         }
 
-        /* ===== CONTENEDOR PRINCIPAL ===== */
         .container {
             background: white;
             border-radius: 24px;
             box-shadow: var(--shadow-lg);
             width: 100%;
-            max-width: 640px;
+            max-width: 800px;
+            margin: 0 auto;
             padding: 24px;
-            /* Mejor rendimiento en móviles */
-            will-change: transform;
-            transform: translateZ(0);
         }
 
-        /* OPTIMIZACIÓN MÓVIL */
         @media (max-width: 640px) {
             body {
                 padding: 8px;
                 padding-top: 12px;
-                padding-bottom: 80px; /* Espacio para el footer fijo */
+                padding-bottom: 80px;
             }
             
             .container {
@@ -96,40 +103,46 @@
             font-weight: 700;
         }
 
+        .subtitle {
+            color: var(--text-light);
+            font-size: 0.9em;
+        }
+
         @media (max-width: 640px) {
             h1 {
                 font-size: 1.5em;
             }
         }
 
-        .subtitle {
-            color: var(--text-light);
-            font-size: 0.9em;
-            font-weight: 400;
-        }
-
-        /* ===== FORMULARIO PARA AÑADIR TAREAS ===== */
+        /* ===== FORMULARIO ===== */
         .add-task-form {
             display: flex;
             flex-direction: column;
             gap: 12px;
             margin-bottom: 24px;
+            padding: 20px;
+            background: var(--bg-light);
+            border-radius: 16px;
         }
 
-        @media (min-width: 640px) {
-            .add-task-form {
-                flex-direction: row;
+        .input-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        @media (max-width: 640px) {
+            .input-row {
+                flex-direction: column;
             }
         }
 
         #taskInput {
             flex: 1;
-            padding: 16px 18px;
+            padding: 14px 16px;
             border: 2px solid var(--border-color);
-            border-radius: 14px;
-            font-size: 16px; /* Evita zoom automático en iOS */
+            border-radius: 12px;
+            font-size: 16px;
             transition: all 0.3s ease;
-            background: white;
         }
 
         #taskInput:focus {
@@ -138,25 +151,50 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
+        .select-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        @media (max-width: 640px) {
+            .select-group {
+                flex-direction: column;
+            }
+        }
+
+        select {
+            flex: 1;
+            padding: 14px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 15px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
         #addButton {
-            padding: 16px 32px;
+            padding: 14px 32px;
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: white;
             border: none;
-            border-radius: 14px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: var(--shadow-sm);
-            /* Mejora la sensación táctil */
             touch-action: manipulation;
-            user-select: none;
         }
 
         #addButton:active {
             transform: scale(0.98);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         /* ===== ESTADÍSTICAS ===== */
@@ -172,11 +210,6 @@
             padding: 16px;
             border-radius: 14px;
             text-align: center;
-            transition: transform 0.2s ease;
-        }
-
-        .stat-item:active {
-            transform: scale(0.98);
         }
 
         .stat-number {
@@ -193,16 +226,36 @@
             display: block;
         }
 
-        @media (max-width: 640px) {
-            .stat-number {
-                font-size: 1.75em;
-            }
-            .stat-label {
-                font-size: 0.8em;
-            }
+        /* ===== FILTROS ===== */
+        .filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
-        /* ===== LISTA DE TAREAS ===== */
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--border-color);
+            background: white;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            touch-action: manipulation;
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary-color);
+        }
+
+        /* ===== TAREAS ===== */
         .tasks-header {
             display: flex;
             justify-content: space-between;
@@ -217,12 +270,6 @@
             font-weight: 600;
         }
 
-        @media (max-width: 640px) {
-            h2 {
-                font-size: 1.1em;
-            }
-        }
-
         #clearCompleted {
             padding: 10px 16px;
             background: var(--danger-color);
@@ -233,13 +280,7 @@
             font-size: 13px;
             font-weight: 600;
             transition: all 0.3s ease;
-            touch-action: manipulation;
             white-space: nowrap;
-        }
-
-        #clearCompleted:active {
-            transform: scale(0.95);
-            background: #ff5252;
         }
 
         #taskList {
@@ -255,12 +296,20 @@
             align-items: flex-start;
             gap: 12px;
             transition: all 0.3s ease;
-            border: 2px solid transparent;
-            touch-action: manipulation;
+            border-left: 4px solid transparent;
+            position: relative;
         }
 
-        .task-item:active {
-            transform: scale(0.99);
+        .task-item.priority-high {
+            border-left-color: var(--priority-high);
+        }
+
+        .task-item.priority-medium {
+            border-left-color: var(--priority-medium);
+        }
+
+        .task-item.priority-low {
+            border-left-color: var(--priority-low);
         }
 
         .task-item.completed {
@@ -279,7 +328,7 @@
 
         .task-content {
             flex: 1;
-            min-width: 0; /* Permite que el texto se trunque */
+            min-width: 0;
         }
 
         .task-text {
@@ -287,7 +336,12 @@
             color: var(--text-dark);
             line-height: 1.5;
             word-wrap: break-word;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .task-text:hover {
+            color: var(--primary-color);
         }
 
         .task-item.completed .task-text {
@@ -295,31 +349,196 @@
             color: var(--text-lighter);
         }
 
+        .task-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .task-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .badge-category-work { background: var(--category-work); }
+        .badge-category-personal { background: var(--category-personal); }
+        .badge-category-urgent { background: var(--category-urgent); }
+        .badge-category-other { background: var(--category-other); }
+
+        .badge-priority {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-priority-high {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--priority-high);
+        }
+
+        .badge-priority-medium {
+            background: rgba(255, 165, 2, 0.2);
+            color: var(--priority-medium);
+        }
+
+        .badge-priority-low {
+            background: rgba(46, 213, 115, 0.2);
+            color: var(--priority-low);
+        }
+
         .task-time {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-lighter);
         }
 
-        .delete-button {
-            background: var(--danger-color);
-            color: white;
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
             border: none;
-            padding: 10px 14px;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 13px;
             font-weight: 600;
             transition: all 0.3s ease;
             touch-action: manipulation;
-            white-space: nowrap;
         }
 
-        .delete-button:active {
+        .edit-btn {
+            background: var(--info-color);
+            color: white;
+        }
+
+        .edit-btn:active {
+            transform: scale(0.95);
+            background: #1e88e5;
+        }
+
+        .delete-btn {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .delete-btn:active {
             transform: scale(0.95);
             background: #ff5252;
         }
 
-        /* ===== MENSAJE CUANDO NO HAY TAREAS ===== */
+        /* ===== MODAL DE EDICIÓN ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: var(--text-dark);
+            font-size: 1.4em;
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px 14px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-save {
+            flex: 1;
+            padding: 14px;
+            background: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            padding: 14px;
+            background: var(--text-lighter);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* ===== EMPTY STATE ===== */
         .empty-state {
             text-align: center;
             padding: 48px 20px;
@@ -331,12 +550,7 @@
             margin-bottom: 16px;
         }
 
-        .empty-state p {
-            font-size: 1em;
-            margin-bottom: 8px;
-        }
-
-        /* ===== PIE DE PÁGINA ===== */
+        /* ===== FOOTER ===== */
         .footer {
             margin-top: 32px;
             text-align: center;
@@ -347,30 +561,7 @@
             border-radius: 12px;
         }
 
-        .footer p {
-            margin-bottom: 12px;
-        }
-
-        #debugButton {
-            margin-top: 12px;
-            padding: 12px 20px;
-            background: var(--success-color);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            touch-action: manipulation;
-        }
-
-        #debugButton:active {
-            transform: scale(0.95);
-            background: #45a049;
-        }
-
-        /* ===== ANIMACIÓN DE ENTRADA ===== */
+        /* ===== ANIMACIONES ===== */
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -385,19 +576,6 @@
         .task-item {
             animation: slideIn 0.3s ease-out;
         }
-
-        /* ===== MEJORAS DE ACCESIBILIDAD ===== */
-        button:focus-visible,
-        input:focus-visible {
-            outline: 3px solid var(--primary-color);
-            outline-offset: 2px;
-        }
-
-        /* ===== LOADING INDICATOR (opcional) ===== */
-        .loading {
-            opacity: 0.6;
-            pointer-events: none;
-        }
     </style>
 </head>
 <body>
@@ -405,19 +583,33 @@
         <!-- ENCABEZADO -->
         <div class="header">
             <h1>📝 Mi Asistente de Tareas</h1>
-            <p class="subtitle">Versión 1.5 - Optimizado para móvil</p>
+            <p class="subtitle">Versión 2.0 - Editar • Categorías • Prioridades</p>
         </div>
 
-        <!-- FORMULARIO PARA AÑADIR TAREAS -->
+        <!-- FORMULARIO -->
         <div class="add-task-form">
-            <input 
-                type="text" 
-                id="taskInput" 
-                placeholder="¿Qué necesitas hacer hoy?"
-                autocomplete="off"
-                aria-label="Nueva tarea"
-            >
-            <button id="addButton" aria-label="Añadir tarea">Añadir</button>
+            <div class="input-row">
+                <input 
+                    type="text" 
+                    id="taskInput" 
+                    placeholder="¿Qué necesitas hacer?"
+                    autocomplete="off"
+                >
+            </div>
+            <div class="select-group">
+                <select id="categorySelect">
+                    <option value="work">🏢 Trabajo</option>
+                    <option value="personal">👤 Personal</option>
+                    <option value="urgent">⚡ Urgente</option>
+                    <option value="other">📌 Otros</option>
+                </select>
+                <select id="prioritySelect">
+                    <option value="low">🟢 Baja</option>
+                    <option value="medium" selected>🟡 Media</option>
+                    <option value="high">🔴 Alta</option>
+                </select>
+                <button id="addButton">Añadir</button>
+            </div>
         </div>
 
         <!-- ESTADÍSTICAS -->
@@ -436,15 +628,22 @@
             </div>
         </div>
 
+        <!-- FILTROS -->
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">Todas</button>
+            <button class="filter-btn" data-filter="work">🏢 Trabajo</button>
+            <button class="filter-btn" data-filter="personal">👤 Personal</button>
+            <button class="filter-btn" data-filter="urgent">⚡ Urgente</button>
+            <button class="filter-btn" data-filter="other">📌 Otros</button>
+        </div>
+
         <!-- LISTA DE TAREAS -->
         <div class="tasks-header">
             <h2>Mis Tareas</h2>
-            <button id="clearCompleted" aria-label="Limpiar tareas completadas">Limpiar</button>
+            <button id="clearCompleted">Limpiar</button>
         </div>
         
-        <ul id="taskList" role="list">
-            <!-- Las tareas se añadirán aquí dinámicamente -->
-        </ul>
+        <ul id="taskList"></ul>
 
         <div id="emptyState" class="empty-state">
             <div class="empty-state-icon">✨</div>
@@ -452,44 +651,89 @@
             <p style="font-size: 0.9em; margin-top: 10px;">¡Añade tu primera tarea arriba!</p>
         </div>
 
-        <!-- PIE DE PÁGINA -->
+        <!-- FOOTER -->
         <div class="footer">
-            <p>💡 Presiona Enter para añadir rápidamente</p>
-            <button id="debugButton">🐛 Ver Tareas en Consola</button>
+            <p>💡 Click en una tarea para editarla</p>
+        </div>
+    </div>
+
+    <!-- MODAL DE EDICIÓN -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✏️ Editar Tarea</h3>
+            </div>
+            <div class="modal-form">
+                <div class="form-group">
+                    <label>Tarea</label>
+                    <input type="text" id="editTaskInput">
+                </div>
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select id="editCategorySelect">
+                        <option value="work">🏢 Trabajo</option>
+                        <option value="personal">👤 Personal</option>
+                        <option value="urgent">⚡ Urgente</option>
+                        <option value="other">📌 Otros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Prioridad</label>
+                    <select id="editPrioritySelect">
+                        <option value="low">🟢 Baja</option>
+                        <option value="medium">🟡 Media</option>
+                        <option value="high">🔴 Alta</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-save" id="saveEdit">Guardar</button>
+                <button class="btn-cancel" id="cancelEdit">Cancelar</button>
+            </div>
         </div>
     </div>
 
     <script>
         // ===== VARIABLES GLOBALES =====
         let tasks = [];
+        let currentFilter = 'all';
+        let editingTaskId = null;
 
         // ===== ELEMENTOS DEL DOM =====
         const taskInput = document.getElementById('taskInput');
+        const categorySelect = document.getElementById('categorySelect');
+        const prioritySelect = document.getElementById('prioritySelect');
         const addButton = document.getElementById('addButton');
         const taskList = document.getElementById('taskList');
         const emptyState = document.getElementById('emptyState');
         const clearCompletedButton = document.getElementById('clearCompleted');
         
-        // Elementos de estadísticas
         const totalTasksElement = document.getElementById('totalTasks');
         const pendingTasksElement = document.getElementById('pendingTasks');
         const completedTasksElement = document.getElementById('completedTasks');
 
-        // ===== CARGAR TAREAS AL INICIAR =====
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        
+        // Modal
+        const editModal = document.getElementById('editModal');
+        const editTaskInput = document.getElementById('editTaskInput');
+        const editCategorySelect = document.getElementById('editCategorySelect');
+        const editPrioritySelect = document.getElementById('editPrioritySelect');
+        const saveEditButton = document.getElementById('saveEdit');
+        const cancelEditButton = document.getElementById('cancelEdit');
+
+        // ===== CARGAR AL INICIAR =====
         window.addEventListener('load', () => {
             loadTasksFromStorage();
             renderTasks();
         });
 
-        // ===== FUNCIÓN PARA AÑADIR TAREA =====
+        // ===== FUNCIÓN AÑADIR TAREA =====
         function addTask() {
             const taskText = taskInput.value.trim();
             
             if (taskText === '') {
-                // En móvil, mejor usar vibración si está disponible
-                if (navigator.vibrate) {
-                    navigator.vibrate(100);
-                }
+                if (navigator.vibrate) navigator.vibrate(100);
                 alert('Por favor escribe una tarea');
                 return;
             }
@@ -497,75 +741,110 @@
             const task = {
                 id: Date.now(),
                 text: taskText,
+                category: categorySelect.value,
+                priority: prioritySelect.value,
                 completed: false,
                 createdAt: new Date().toLocaleString('es-ES')
             };
 
-            tasks.push(task);
+            tasks.unshift(task); // Añade al inicio
             taskInput.value = '';
             taskInput.focus();
 
-            // Feedback táctil
-            if (navigator.vibrate) {
-                navigator.vibrate(50);
-            }
+            if (navigator.vibrate) navigator.vibrate(50);
 
             saveTasksToStorage();
             renderTasks();
         }
 
-        // ===== FUNCIÓN PARA MARCAR TAREA COMO COMPLETADA =====
+        // ===== FUNCIÓN TOGGLE TAREA =====
         function toggleTask(id) {
             const task = tasks.find(t => t.id === id);
             if (task) {
                 task.completed = !task.completed;
-                
-                // Feedback táctil
-                if (navigator.vibrate) {
-                    navigator.vibrate(30);
-                }
-                
+                if (navigator.vibrate) navigator.vibrate(30);
                 saveTasksToStorage();
                 renderTasks();
             }
         }
 
-        // ===== FUNCIÓN PARA ELIMINAR TAREA =====
+        // ===== FUNCIÓN ELIMINAR TAREA =====
         function deleteTask(id) {
             if (confirm('¿Eliminar esta tarea?')) {
                 tasks = tasks.filter(t => t.id !== id);
-                
-                // Feedback táctil
-                if (navigator.vibrate) {
-                    navigator.vibrate([50, 50, 50]);
-                }
-                
+                if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
                 saveTasksToStorage();
                 renderTasks();
             }
         }
 
-        // ===== FUNCIÓN PARA LIMPIAR TAREAS COMPLETADAS =====
+        // ===== FUNCIÓN EDITAR TAREA =====
+        function editTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+
+            editingTaskId = id;
+            editTaskInput.value = task.text;
+            editCategorySelect.value = task.category;
+            editPrioritySelect.value = task.priority;
+            
+            editModal.classList.add('active');
+            editTaskInput.focus();
+        }
+
+        // ===== GUARDAR EDICIÓN =====
+        function saveEdit() {
+            const task = tasks.find(t => t.id === editingTaskId);
+            if (!task) return;
+
+            const newText = editTaskInput.value.trim();
+            if (newText === '') {
+                alert('La tarea no puede estar vacía');
+                return;
+            }
+
+            task.text = newText;
+            task.category = editCategorySelect.value;
+            task.priority = editPrioritySelect.value;
+
+            closeModal();
+            saveTasksToStorage();
+            renderTasks();
+
+            if (navigator.vibrate) navigator.vibrate(50);
+        }
+
+        // ===== CANCELAR EDICIÓN =====
+        function closeModal() {
+            editModal.classList.remove('active');
+            editingTaskId = null;
+        }
+
+        // ===== LIMPIAR COMPLETADAS =====
         function clearCompleted() {
             const completedCount = tasks.filter(t => t.completed).length;
             
             if (completedCount === 0) {
-                alert('No hay tareas completadas para eliminar');
+                alert('No hay tareas completadas');
                 return;
             }
 
-            if (confirm(`¿Eliminar ${completedCount} tarea(s) completada(s)?`)) {
+            if (confirm(`¿Eliminar ${completedCount} tarea(s)?`)) {
                 tasks = tasks.filter(t => !t.completed);
                 saveTasksToStorage();
                 renderTasks();
             }
         }
 
-        // ===== FUNCIÓN PARA RENDERIZAR TAREAS EN LA PANTALLA =====
+        // ===== RENDERIZAR TAREAS =====
         function renderTasks() {
             taskList.innerHTML = '';
 
-            if (tasks.length === 0) {
+            const filteredTasks = currentFilter === 'all' 
+                ? tasks 
+                : tasks.filter(t => t.category === currentFilter);
+
+            if (filteredTasks.length === 0) {
                 emptyState.style.display = 'block';
                 updateStats();
                 return;
@@ -573,10 +852,29 @@
                 emptyState.style.display = 'none';
             }
 
-            tasks.forEach(task => {
+            filteredTasks.forEach(task => {
                 const li = document.createElement('li');
-                li.className = `task-item ${task.completed ? 'completed' : ''}`;
-                li.setAttribute('role', 'listitem');
+                li.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''}`;
+                
+                const categoryIcons = {
+                    work: '🏢',
+                    personal: '👤',
+                    urgent: '⚡',
+                    other: '📌'
+                };
+
+                const categoryNames = {
+                    work: 'Trabajo',
+                    personal: 'Personal',
+                    urgent: 'Urgente',
+                    other: 'Otros'
+                };
+
+                const priorityNames = {
+                    high: 'Alta',
+                    medium: 'Media',
+                    low: 'Baja'
+                };
                 
                 li.innerHTML = `
                     <input 
@@ -584,19 +882,29 @@
                         class="task-checkbox" 
                         ${task.completed ? 'checked' : ''}
                         onchange="toggleTask(${task.id})"
-                        aria-label="Marcar tarea como ${task.completed ? 'no completada' : 'completada'}"
                     >
                     <div class="task-content">
-                        <div class="task-text">${escapeHtml(task.text)}</div>
-                        <div class="task-time">${task.createdAt}</div>
+                        <div class="task-text" onclick="editTask(${task.id})">
+                            ${escapeHtml(task.text)}
+                        </div>
+                        <div class="task-meta">
+                            <span class="task-badge badge-category-${task.category}">
+                                ${categoryIcons[task.category]} ${categoryNames[task.category]}
+                            </span>
+                            <span class="badge-priority badge-priority-${task.priority}">
+                                ${priorityNames[task.priority]}
+                            </span>
+                            <span class="task-time">${task.createdAt}</span>
+                        </div>
                     </div>
-                    <button 
-                        class="delete-button" 
-                        onclick="deleteTask(${task.id})"
-                        aria-label="Eliminar tarea"
-                    >
-                        🗑️
-                    </button>
+                    <div class="task-actions">
+                        <button class="action-btn edit-btn" onclick="editTask(${task.id})">
+                            ✏️
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteTask(${task.id})">
+                            🗑️
+                        </button>
+                    </div>
                 `;
 
                 taskList.appendChild(li);
@@ -605,14 +913,14 @@
             updateStats();
         }
 
-        // ===== FUNCIÓN PARA ESCAPAR HTML (SEGURIDAD) =====
+        // ===== ESCAPE HTML =====
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
 
-        // ===== FUNCIÓN PARA ACTUALIZAR ESTADÍSTICAS =====
+        // ===== ACTUALIZAR ESTADÍSTICAS =====
         function updateStats() {
             const total = tasks.length;
             const completed = tasks.filter(t => t.completed).length;
@@ -623,13 +931,12 @@
             pendingTasksElement.textContent = pending;
         }
 
-        // ===== FUNCIONES DE ALMACENAMIENTO LOCAL =====
+        // ===== STORAGE =====
         function saveTasksToStorage() {
             try {
                 localStorage.setItem('myTasks', JSON.stringify(tasks));
             } catch (e) {
-                console.error('Error guardando tareas:', e);
-                alert('Error al guardar. ¿Almacenamiento lleno?');
+                console.error('Error guardando:', e);
             }
         }
 
@@ -638,9 +945,16 @@
                 const savedTasks = localStorage.getItem('myTasks');
                 if (savedTasks) {
                     tasks = JSON.parse(savedTasks);
+                    
+                    // Migrar tareas antiguas (sin categoría/prioridad)
+                    tasks = tasks.map(task => ({
+                        ...task,
+                        category: task.category || 'other',
+                        priority: task.priority || 'medium'
+                    }));
                 }
             } catch (e) {
-                console.error('Error cargando tareas:', e);
+                console.error('Error cargando:', e);
                 tasks = [];
             }
         }
@@ -649,52 +963,38 @@
         addButton.addEventListener('click', addTask);
 
         taskInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                addTask();
-            }
+            if (e.key === 'Enter') addTask();
         });
 
         clearCompletedButton.addEventListener('click', clearCompleted);
 
-        // ===== BOTÓN DE DEBUG =====
-        const debugButton = document.getElementById('debugButton');
+        saveEditButton.addEventListener('click', saveEdit);
+        cancelEditButton.addEventListener('click', closeModal);
 
-        debugButton.addEventListener('click', () => {
-            console.clear();
-            console.log('═══════════════════════════════════════');
-            console.log('🐛 DEBUG - Estado de la Aplicación');
-            console.log('═══════════════════════════════════════');
-            console.log('📊 Total de tareas:', tasks.length);
-            console.log('📋 Array completo de tareas:', tasks);
-            console.log('');
-            console.log('📦 Contenido del localStorage:');
-            console.log(localStorage.getItem('myTasks'));
-            console.log('═══════════════════════════════════════');
-            
-            if (tasks.length > 0) {
-                console.log('📝 Detalles de cada tarea:');
-                tasks.forEach((task, index) => {
-                    console.log(`\nTarea ${index + 1}:`);
-                    console.log('  ├─ ID:', task.id);
-                    console.log('  ├─ Texto:', task.text);
-                    console.log('  ├─ Completada:', task.completed ? '✅ Sí' : '❌ No');
-                    console.log('  └─ Creada:', task.createdAt);
-                });
-            } else {
-                console.log('⚠️ No hay tareas para mostrar');
+        // Cerrar modal con ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && editModal.classList.contains('active')) {
+                closeModal();
             }
-            
-            console.log('═══════════════════════════════════════');
-            console.log('💡 Tip: Puedes editar el array "tasks" desde aquí');
-            console.log('Ejemplo: tasks[0].text = "Nueva tarea"');
-            
-            alert('Revisa la consola del navegador (F12) 🔍');
         });
 
-        // ===== MENSAJE DE BIENVENIDA =====
-        console.log('🎉 ¡Bienvenido a tu Asistente de Tareas v1.5!');
-        console.log('📱 Optimizado para dispositivos móviles');
-        console.log('💾 Usando localStorage para persistencia');
+        // Cerrar modal al hacer click fuera
+        editModal.addEventListener('click', (e) => {
+            if (e.target === editModal) closeModal();
+        });
+
+        // Filtros
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderTasks();
+            });
+        });
+
+        console.log('🎉 ¡Bienvenido a Mi Asistente de Tareas v2.0!');
+        console.log('✨ Nuevas funciones: Editar • Categorías • Prioridades');
     </script>
 </body>
 </html>
