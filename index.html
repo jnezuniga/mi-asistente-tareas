@@ -9,13 +9,13 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Mis Tareas">
-    <meta name="description" content="Organiza tus tareas con categorías y prioridades">
+    <meta name="description" content="Organiza tus tareas con fechas, categorías y prioridades">
     
     <!-- ICONOS -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>📝</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23667eea'/><text x='50' y='75' font-size='60' text-anchor='middle' fill='white'>📝</text></svg>">
     
-    <title>Mi Asistente de Tareas v2.0</title>
+    <title>Mi Asistente de Tareas v3.0</title>
     
     <style>
         /* ===== VARIABLES ===== */
@@ -45,6 +45,11 @@
             --category-personal: #ff6b9d;
             --category-urgent: #ff4757;
             --category-other: #95a5a6;
+            
+            /* Estados de fecha */
+            --overdue: #ff4757;
+            --today: #ffa726;
+            --upcoming: #42a5f5;
             
             --text-dark: #333;
             --text-light: #666;
@@ -87,6 +92,68 @@
             .container {
                 padding: 20px 16px;
                 border-radius: 20px;
+            }
+        }
+
+        /* ===== NOTIFICACIÓN DE TAREAS VENCIDAS ===== */
+        .notification {
+            display: none;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-md);
+            animation: slideDown 0.5s ease-out;
+        }
+
+        .notification.show {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notification-icon {
+            font-size: 24px;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .notification-message {
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+        .notification-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
@@ -152,18 +219,18 @@
         }
 
         .select-group {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 12px;
         }
 
         @media (max-width: 640px) {
             .select-group {
-                flex-direction: column;
+                grid-template-columns: 1fr;
             }
         }
 
-        select {
-            flex: 1;
+        select, input[type="date"] {
             padding: 14px 16px;
             border: 2px solid var(--border-color);
             border-radius: 12px;
@@ -173,7 +240,7 @@
             transition: all 0.3s ease;
         }
 
-        select:focus {
+        select:focus, input[type="date"]:focus {
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
@@ -200,9 +267,15 @@
         /* ===== ESTADÍSTICAS ===== */
         .stats {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 12px;
             margin-bottom: 24px;
+        }
+
+        @media (max-width: 640px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         .stat-item {
@@ -212,11 +285,19 @@
             text-align: center;
         }
 
+        .stat-item.overdue {
+            background: rgba(255, 71, 87, 0.1);
+        }
+
         .stat-number {
             font-size: 2em;
             font-weight: 700;
             color: var(--primary-color);
             display: block;
+        }
+
+        .stat-number.overdue-count {
+            color: var(--overdue);
         }
 
         .stat-label {
@@ -317,6 +398,10 @@
             background: var(--bg-completed);
         }
 
+        .task-item.overdue:not(.completed) {
+            background: rgba(255, 71, 87, 0.05);
+        }
+
         .task-checkbox {
             width: 28px;
             height: 28px;
@@ -390,6 +475,31 @@
         .badge-priority-low {
             background: rgba(46, 213, 115, 0.2);
             color: var(--priority-low);
+        }
+
+        .badge-date {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .badge-date.overdue {
+            background: rgba(255, 71, 87, 0.15);
+            color: var(--overdue);
+        }
+
+        .badge-date.today {
+            background: rgba(255, 167, 38, 0.15);
+            color: var(--today);
+        }
+
+        .badge-date.upcoming {
+            background: rgba(66, 165, 245, 0.15);
+            color: var(--upcoming);
         }
 
         .task-time {
@@ -508,6 +618,12 @@
             font-size: 15px;
         }
 
+        .date-hint {
+            font-size: 12px;
+            color: var(--text-light);
+            font-style: italic;
+        }
+
         .modal-actions {
             display: flex;
             gap: 12px;
@@ -580,10 +696,20 @@
 </head>
 <body>
     <div class="container">
+        <!-- NOTIFICACIÓN DE TAREAS VENCIDAS -->
+        <div id="overdueNotification" class="notification">
+            <div class="notification-icon">⚠️</div>
+            <div class="notification-content">
+                <div class="notification-title">Tareas Vencidas</div>
+                <div class="notification-message" id="overdueMessage"></div>
+            </div>
+            <button class="notification-close" onclick="closeNotification()">×</button>
+        </div>
+
         <!-- ENCABEZADO -->
         <div class="header">
             <h1>📝 Mi Asistente de Tareas</h1>
-            <p class="subtitle">Versión 2.0 - Editar • Categorías • Prioridades</p>
+            <p class="subtitle">Versión 3.0 - Fechas • Editar • Categorías • Prioridades</p>
         </div>
 
         <!-- FORMULARIO -->
@@ -608,8 +734,13 @@
                     <option value="medium" selected>🟡 Media</option>
                     <option value="high">🔴 Alta</option>
                 </select>
-                <button id="addButton">Añadir</button>
+                <input 
+                    type="date" 
+                    id="dueDateInput"
+                    title="Fecha de vencimiento (opcional)"
+                >
             </div>
+            <button id="addButton">Añadir Tarea</button>
         </div>
 
         <!-- ESTADÍSTICAS -->
@@ -626,6 +757,10 @@
                 <span class="stat-number" id="completedTasks">0</span>
                 <span class="stat-label">Completadas</span>
             </div>
+            <div class="stat-item overdue">
+                <span class="stat-number overdue-count" id="overdueTasks">0</span>
+                <span class="stat-label">Vencidas</span>
+            </div>
         </div>
 
         <!-- FILTROS -->
@@ -635,6 +770,8 @@
             <button class="filter-btn" data-filter="personal">👤 Personal</button>
             <button class="filter-btn" data-filter="urgent">⚡ Urgente</button>
             <button class="filter-btn" data-filter="other">📌 Otros</button>
+            <button class="filter-btn" data-filter="overdue">🔴 Vencidas</button>
+            <button class="filter-btn" data-filter="today">📅 Hoy</button>
         </div>
 
         <!-- LISTA DE TAREAS -->
@@ -653,7 +790,7 @@
 
         <!-- FOOTER -->
         <div class="footer">
-            <p>💡 Click en una tarea para editarla</p>
+            <p>💡 Click en una tarea para editarla • Las fechas son opcionales</p>
         </div>
     </div>
 
@@ -685,6 +822,11 @@
                         <option value="high">🔴 Alta</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label>Fecha de vencimiento</label>
+                    <input type="date" id="editDueDateInput">
+                    <span class="date-hint">Deja vacío para quitar la fecha</span>
+                </div>
             </div>
             <div class="modal-actions">
                 <button class="btn-save" id="saveEdit">Guardar</button>
@@ -703,6 +845,7 @@
         const taskInput = document.getElementById('taskInput');
         const categorySelect = document.getElementById('categorySelect');
         const prioritySelect = document.getElementById('prioritySelect');
+        const dueDateInput = document.getElementById('dueDateInput');
         const addButton = document.getElementById('addButton');
         const taskList = document.getElementById('taskList');
         const emptyState = document.getElementById('emptyState');
@@ -711,21 +854,119 @@
         const totalTasksElement = document.getElementById('totalTasks');
         const pendingTasksElement = document.getElementById('pendingTasks');
         const completedTasksElement = document.getElementById('completedTasks');
+        const overdueTasksElement = document.getElementById('overdueTasks');
 
         const filterButtons = document.querySelectorAll('.filter-btn');
+        
+        const overdueNotification = document.getElementById('overdueNotification');
+        const overdueMessage = document.getElementById('overdueMessage');
         
         // Modal
         const editModal = document.getElementById('editModal');
         const editTaskInput = document.getElementById('editTaskInput');
         const editCategorySelect = document.getElementById('editCategorySelect');
         const editPrioritySelect = document.getElementById('editPrioritySelect');
+        const editDueDateInput = document.getElementById('editDueDateInput');
         const saveEditButton = document.getElementById('saveEdit');
         const cancelEditButton = document.getElementById('cancelEdit');
+
+        // ===== FUNCIONES DE FECHA ===== 
+        function getTodayString() {
+            const today = new Date();
+            return today.toISOString().split('T')[0];
+        }
+
+        function getDaysUntil(dateString) {
+            if (!dateString) return null;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const dueDate = new Date(dateString + 'T00:00:00');
+            const diffTime = dueDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+
+        function getDateStatus(dateString) {
+            if (!dateString) return null;
+            const days = getDaysUntil(dateString);
+            
+            if (days < 0) return 'overdue';
+            if (days === 0) return 'today';
+            if (days === 1) return 'tomorrow';
+            return 'upcoming';
+        }
+
+        function formatDateBadge(dateString) {
+            if (!dateString) return null;
+            
+            const days = getDaysUntil(dateString);
+            const status = getDateStatus(dateString);
+            
+            let icon = '📅';
+            let text = '';
+            
+            if (status === 'overdue') {
+                icon = '🔴';
+                text = days === -1 ? 'Venció ayer' : `Venció hace ${Math.abs(days)} días`;
+            } else if (status === 'today') {
+                icon = '⚡';
+                text = 'Vence hoy';
+            } else if (status === 'tomorrow') {
+                icon = '⚠️';
+                text = 'Vence mañana';
+            } else {
+                icon = '📅';
+                text = `En ${days} días`;
+            }
+            
+            return { icon, text, status };
+        }
+
+        // ===== FUNCIÓN DE ORDENAMIENTO =====
+        function sortTasks(tasksToSort) {
+            return tasksToSort.sort((a, b) => {
+                // 1. Por prioridad (alta -> media -> baja)
+                const priorityOrder = { high: 0, medium: 1, low: 2 };
+                const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+                if (priorityDiff !== 0) return priorityDiff;
+                
+                // 2. Por fecha de vencimiento (más cercanas primero)
+                // Tareas sin fecha van al final
+                if (a.dueDate && !b.dueDate) return -1;
+                if (!a.dueDate && b.dueDate) return 1;
+                
+                if (a.dueDate && b.dueDate) {
+                    const dateA = new Date(a.dueDate);
+                    const dateB = new Date(b.dueDate);
+                    const dateDiff = dateA - dateB;
+                    if (dateDiff !== 0) return dateDiff;
+                }
+                
+                // 3. Por fecha de creación (más recientes primero)
+                return b.id - a.id;
+            });
+        }
+
+        // ===== NOTIFICACIÓN DE TAREAS VENCIDAS =====
+        function showOverdueNotification() {
+            const overdue = tasks.filter(t => !t.completed && t.dueDate && getDateStatus(t.dueDate) === 'overdue');
+            
+            if (overdue.length > 0) {
+                const plural = overdue.length === 1 ? 'tarea vencida' : 'tareas vencidas';
+                overdueMessage.textContent = `Tienes ${overdue.length} ${plural} que requieren atención`;
+                overdueNotification.classList.add('show');
+            }
+        }
+
+        function closeNotification() {
+            overdueNotification.classList.remove('show');
+        }
 
         // ===== CARGAR AL INICIAR =====
         window.addEventListener('load', () => {
             loadTasksFromStorage();
             renderTasks();
+            showOverdueNotification();
         });
 
         // ===== FUNCIÓN AÑADIR TAREA =====
@@ -743,12 +984,14 @@
                 text: taskText,
                 category: categorySelect.value,
                 priority: prioritySelect.value,
+                dueDate: dueDateInput.value || null,
                 completed: false,
                 createdAt: new Date().toLocaleString('es-ES')
             };
 
-            tasks.unshift(task); // Añade al inicio
+            tasks.push(task);
             taskInput.value = '';
+            dueDateInput.value = '';
             taskInput.focus();
 
             if (navigator.vibrate) navigator.vibrate(50);
@@ -787,6 +1030,7 @@
             editTaskInput.value = task.text;
             editCategorySelect.value = task.category;
             editPrioritySelect.value = task.priority;
+            editDueDateInput.value = task.dueDate || '';
             
             editModal.classList.add('active');
             editTaskInput.focus();
@@ -806,6 +1050,7 @@
             task.text = newText;
             task.category = editCategorySelect.value;
             task.priority = editPrioritySelect.value;
+            task.dueDate = editDueDateInput.value || null;
 
             closeModal();
             saveTasksToStorage();
@@ -840,11 +1085,21 @@
         function renderTasks() {
             taskList.innerHTML = '';
 
-            const filteredTasks = currentFilter === 'all' 
-                ? tasks 
-                : tasks.filter(t => t.category === currentFilter);
+            let filteredTasks = tasks;
+            
+            // Aplicar filtros
+            if (currentFilter === 'overdue') {
+                filteredTasks = tasks.filter(t => !t.completed && t.dueDate && getDateStatus(t.dueDate) === 'overdue');
+            } else if (currentFilter === 'today') {
+                filteredTasks = tasks.filter(t => !t.completed && t.dueDate && getDateStatus(t.dueDate) === 'today');
+            } else if (currentFilter !== 'all') {
+                filteredTasks = tasks.filter(t => t.category === currentFilter);
+            }
 
-            if (filteredTasks.length === 0) {
+            // Ordenar tareas
+            const sortedTasks = sortTasks([...filteredTasks]);
+
+            if (sortedTasks.length === 0) {
                 emptyState.style.display = 'block';
                 updateStats();
                 return;
@@ -852,9 +1107,10 @@
                 emptyState.style.display = 'none';
             }
 
-            filteredTasks.forEach(task => {
+            sortedTasks.forEach(task => {
                 const li = document.createElement('li');
-                li.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''}`;
+                const dateStatus = task.dueDate ? getDateStatus(task.dueDate) : null;
+                li.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''} ${dateStatus === 'overdue' ? 'overdue' : ''}`;
                 
                 const categoryIcons = {
                     work: '🏢',
@@ -875,6 +1131,8 @@
                     medium: 'Media',
                     low: 'Baja'
                 };
+
+                const dateBadge = task.dueDate ? formatDateBadge(task.dueDate) : null;
                 
                 li.innerHTML = `
                     <input 
@@ -894,6 +1152,11 @@
                             <span class="badge-priority badge-priority-${task.priority}">
                                 ${priorityNames[task.priority]}
                             </span>
+                            ${dateBadge ? `
+                                <span class="badge-date ${dateBadge.status}">
+                                    ${dateBadge.icon} ${dateBadge.text}
+                                </span>
+                            ` : ''}
                             <span class="task-time">${task.createdAt}</span>
                         </div>
                     </div>
@@ -925,10 +1188,12 @@
             const total = tasks.length;
             const completed = tasks.filter(t => t.completed).length;
             const pending = total - completed;
+            const overdue = tasks.filter(t => !t.completed && t.dueDate && getDateStatus(t.dueDate) === 'overdue').length;
 
             totalTasksElement.textContent = total;
             completedTasksElement.textContent = completed;
             pendingTasksElement.textContent = pending;
+            overdueTasksElement.textContent = overdue;
         }
 
         // ===== STORAGE =====
@@ -946,11 +1211,12 @@
                 if (savedTasks) {
                     tasks = JSON.parse(savedTasks);
                     
-                    // Migrar tareas antiguas (sin categoría/prioridad)
+                    // Migrar tareas antiguas
                     tasks = tasks.map(task => ({
                         ...task,
                         category: task.category || 'other',
-                        priority: task.priority || 'medium'
+                        priority: task.priority || 'medium',
+                        dueDate: task.dueDate || null
                     }));
                 }
             } catch (e) {
@@ -993,8 +1259,8 @@
             });
         });
 
-        console.log('🎉 ¡Bienvenido a Mi Asistente de Tareas v2.0!');
-        console.log('✨ Nuevas funciones: Editar • Categorías • Prioridades');
+        console.log('🎉 ¡Bienvenido a Mi Asistente de Tareas v3.0!');
+        console.log('✨ Nueva función: Fechas de vencimiento');
     </script>
 </body>
 </html>
