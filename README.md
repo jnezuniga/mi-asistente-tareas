@@ -24,7 +24,7 @@ Aplicación web para organizar tus tareas diarias con categorías, prioridades y
 
 ## 🚀 Uso
 
-1. **Accede a la aplicación** en: [tu-url-aqui.github.io/mi-asistente-tareas/]
+1. **Accede a la aplicación** en: https://jnezuniga.github.io/mi-asistente-tareas/
 2. **Añade tu primera tarea** escribiendo en el campo superior
 3. **Selecciona categoría y prioridad** antes de añadir
 4. **Click en el texto** de cualquier tarea para editarla
